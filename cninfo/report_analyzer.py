@@ -23,23 +23,28 @@ class ReportAnalyzer(Report):
             self.result_path = self.report_path
 
     def _process_stock_year(self, args):
-        stock_code, year, keywords ,traditional= args
-        if self.category_name == '招股说明书':
+        if len(args) == 3:
+            stock_code, keywords, traditional = args
             txt_path = os.path.join(self.report_path, stock_code, f'{stock_code}-招股说明书.txt')
             pdf_path = os.path.join(self.report_path, stock_code, f'{stock_code}-招股说明书.pdf')
-        else:
+            keyword_count = {'stock_code': stock_code}
+        elif len(args) == 4:
+            stock_code, year, keywords, traditional = args
             pdf_path = os.path.join(self.report_path, stock_code, f'{stock_code}-{year}年-{self.category_name}.pdf')
             txt_path = os.path.join(self.report_path, stock_code, f'{stock_code}-{year}年-{self.category_name}.txt')
+            keyword_count = {'stock_code': stock_code, 'year': year}
+        else:
+            raise ValueError('args should be a tuple of length 3 or 4')
+
         if not os.path.exists(txt_path):
             if not os.path.exists(pdf_path):
-                logger.warning(f'{stock_code}-{year}年-{self.category_name} 无pdf文件')
+                logger.warning(f'{os.path.basename(pdf_path)} 无pdf文件')
                 return None
             else:
                 if not self._convert_pdf_to_txt(pdf_path):
-                    logger.warning(f'{stock_code}-{year}年-{self.category_name} 转换失败')
+                    logger.warning(f'{os.path.basename(pdf_path)} 转换失败')
                     return None
         report_text = self._get_from_txt(txt_path)
-        keyword_count = {'stock_code': stock_code, 'year': year}
         for keyword in keywords:
             # 开启简体+繁体统计
             if traditional:
@@ -80,11 +85,18 @@ class ReportAnalyzer(Report):
         assert isinstance(traditional, bool), "traditional must be bool"
 
         current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        total_iterations = len(stock_codes) * (end_year - start_year + 1)
+        if self.category_name == '招股说明书':
+            total_iterations = len(stock_codes)
+        else:
+            total_iterations = len(stock_codes) * (end_year - start_year + 1)
         progress_bar = tqdm(total=total_iterations, desc="Processing", ncols=100)
-        all_args = [(stock_code, year, keywords,traditional)
-                    for stock_code in stock_codes
-                    for year in range(start_year, end_year + 1)]
+        # 招股说明书不存在年份
+        if self.category_name == '招股说明书':
+            all_args = [(stock_code, keywords, traditional)for stock_code in stock_codes]
+        else:
+            all_args = [(stock_code, year, keywords, traditional)
+                        for stock_code in stock_codes
+                        for year in range(start_year, end_year + 1)]
         with Manager() as manager:
             output_list = manager.list()
             with Pool(max_concurrency) as pool:
@@ -95,7 +107,10 @@ class ReportAnalyzer(Report):
                     progress_bar.update(1)
                 if save_type == 'csv':
                     with open(f'{save_name}_{current_time}.csv', 'a+', encoding='utf8', newline='') as csvfile:
-                        fieldnames = ['stock_code', 'year'] + keywords + ['total']
+                        if self.category_name == '招股说明书':
+                            fieldnames = ['stock_code'] + keywords + ['total']
+                        else:
+                            fieldnames = ['stock_code', 'year'] + keywords + ['total']
                         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                         writer.writeheader()
                         for result in output_list:

@@ -110,10 +110,13 @@ class Report:
         :return: 总文本不为None，则返回True，否则返回False
         """
         pdf_path = txt_path.replace('.txt', '.pdf')
-        with fitz.open(pdf_path) as doc:
-            text = ""
-            for page in doc.pages():
-                text += page.get_text()
+        try:
+            with fitz.open(pdf_path) as doc:
+                text = ""
+                for page in doc.pages():
+                    text += page.get_text()
+        except:
+            return False
             # 保留换行和空格
             # text = text.replace('\n', '').replace(' ', '')
         if text:
