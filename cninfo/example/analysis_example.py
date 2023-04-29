@@ -1,4 +1,4 @@
-from report_analyzer import ReportAnalyzer
+from SpiderChaser.cninfo.report_analyzer import ReportAnalyzer
 
 if __name__ == '__main__':
     # 实例化分析器 category为报告类型（年报、半年度报告、一季度报告、三季度报告、招股说明书）

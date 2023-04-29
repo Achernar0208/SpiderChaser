@@ -1,4 +1,4 @@
-from report_downloader import ReportDownloader
+from SpiderChaser.cninfo.report_downloader import ReportDownloader
 
 # 实例化下载器 category为报告类型（年报、半年度报告、一季度报告、三季度报告、招股说明书）
 # report_path为报告存储路径（默认为以报告类型为名称的文件夹）
