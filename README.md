@@ -78,6 +78,13 @@ save_name|分析结果文件名||result
 max_concurrency|最大并发量(进程)||当前cpu核数
 traditional|开启繁体|True、False|False
 
+---
+
+## 8684公交网(https://www.8684.cn)
+功能：爬取全国各省份的所有公交线路信息，最后以省份为单位保存为excel文件
+运行结果截图：
+![直辖市公交线路](./cninfo/screenshot/直辖市公交线路.png)
+
 
 
 
