@@ -86,6 +86,14 @@ traditional|开启繁体|True、False|False
 运行结果截图：
 ![直辖市公交线路](./cninfo/screenshot/直辖市公交线路.png)
 
+## [中国观鸟记录中心](http://www.birdreport.cn/)
+
+通过 js 逆向解密数据，可以访问该网站的后端接口
+
+1. 安装 node 环境
+2. `npm install jsdom` 和 `npm install crypto-js`
+3. 安装 python 程序中将要使用到的库
+4. 运行 main 文件
 
 
 
